@@ -1,5 +1,3 @@
-name: firecrawl
-
 x-common-service: &common-service
   build: apps/api
   networks:
@@ -18,13 +16,15 @@ services:
       - BLOCK_MEDIA=${BLOCK_MEDIA}
     networks:
       - backend
+    ports:
+      - "4000:3000" # Host port 4000 maps to container port 3000
 
   api:
     <<: *common-service
     environment:
-      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
-      REDIS_RATE_LIMIT_URL: ${REDIS_URL:-redis://redis:6379}
-      PLAYWRIGHT_MICROSERVICE_URL: ${PLAYWRIGHT_MICROSERVICE_URL:-http://playwright-service:3000}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6380}
+      REDIS_RATE_LIMIT_URL: ${REDIS_RATE_LIMIT_URL:-redis://redis:6380}
+      PLAYWRIGHT_MICROSERVICE_URL: ${PLAYWRIGHT_MICROSERVICE_URL:-http://playwright-service:4000}
       USE_DB_AUTHENTICATION: ${USE_DB_AUTHENTICATION}
       PORT: ${PORT:-3002}
       NUM_WORKERS_PER_QUEUE: ${NUM_WORKERS_PER_QUEUE}
@@ -56,9 +56,9 @@ services:
   worker:
     <<: *common-service
     environment:
-      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
-      REDIS_RATE_LIMIT_URL: ${REDIS_URL:-redis://redis:6379}
-      PLAYWRIGHT_MICROSERVICE_URL: ${PLAYWRIGHT_MICROSERVICE_URL:-http://playwright-service:3000}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6380}
+      REDIS_RATE_LIMIT_URL: ${REDIS_RATE_LIMIT_URL:-redis://redis:6380}
+      PLAYWRIGHT_MICROSERVICE_URL: ${PLAYWRIGHT_MICROSERVICE_URL:-http://playwright-service:4000}
       USE_DB_AUTHENTICATION: ${USE_DB_AUTHENTICATION}
       PORT: ${PORT:-3002}
       NUM_WORKERS_PER_QUEUE: ${NUM_WORKERS_PER_QUEUE}
@@ -90,6 +90,8 @@ services:
     image: redis:alpine
     networks:
       - backend
+    ports:
+      - "6380:6379" # Host port 6380 maps to container port 6379
     command: redis-server --bind 0.0.0.0
 
 networks:
